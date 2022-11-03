@@ -16,11 +16,13 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 class MovieModule {
+   val BASE_URL = "https://www.whenisthenextmcufilm.com/"
+
     @Singleton
     @Provides
     fun provideApiService(): MovieService =
         Retrofit.Builder()
-            .baseUrl("https://www.whenisthenextmcufilm.com/")
+            .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .client(provideOkHttpClient())
             .build()
@@ -41,4 +43,9 @@ class MovieModule {
     @Singleton
     @Provides
     fun provideRepository(): MovieRepository = MovieRepository(provideApiService())
+
+    public fun provideBaseUrl():String{
+
+        return BASE_URL
+    }
 }

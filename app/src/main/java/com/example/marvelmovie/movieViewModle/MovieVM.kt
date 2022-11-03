@@ -20,6 +20,7 @@ class MovieVM @Inject constructor(private val repository: MovieRepository): View
     fun fetchMovies(){
 
         viewModelScope.launch {
+            // the coroutine in this scope will live as long the view model is alive.
             val response = repository.getAllMovies()
             if(response.isSuccessful){
                 movieLiveData.postValue(response.body())

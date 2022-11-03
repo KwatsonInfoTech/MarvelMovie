@@ -10,9 +10,11 @@ import com.example.marvelmovie.repository.MovieRepository
 import com.example.marvelmovie.utils.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.mockk.*
+import kotlinx.coroutines.runBlocking
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import retrofit2.Response
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,10 +26,11 @@ class MovieViewModelTest @Inject constructor(){
     val myMarvelMovie = Movie("TestMovie",18,
         FollowingProduction(34,"next production","","21/08/2023","NextProduction","Movie")
         ,"my test movie","","","")
+
     val movieObserver : Observer<Movie> = mockk(relaxed = true)
 
     val repository: MovieRepository = mockk(relaxed = true){
-        coEvery { getAllMovies() } returns MutableLiveData((myMarvelMovie))
+        coEvery { getAllMovies() } returns MutableLiveData(myMarvelMovie)
     }
 
     @Before
@@ -36,23 +39,29 @@ class MovieViewModelTest @Inject constructor(){
 
         viewModel = MovieVM(repository)
         viewModel.movieLiveData.observeForever(movieObserver)
+
     }
 
     @Test
     fun `should emit test movie`(){
 
-       verify { movieObserver.onChanged((myMarvelMovie)) }
+        viewModel.movieLiveData.value = myMarvelMovie
+
         assert(viewModel.movieLiveData.value == myMarvelMovie)
     }
 
 
+
+
 }
-
-
 
 private infix fun <T, B> MockKStubScope<T, B>.returns(mutableLiveData: MutableLiveData<Movie>) {
 
 }
+
+
+
+
 
 
 
