@@ -1,13 +1,11 @@
 package com.example.marvelmovie
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.Observer
 import com.example.marvelmovie.data.entities.FollowingProduction
 import com.example.marvelmovie.data.entities.Movie
 import com.example.marvelmovie.data.remote.MovieService
-import com.example.marvelmovie.injection.MovieModule
-import com.example.marvelmovie.movieViewModle.MovieVM
 import com.example.marvelmovie.repository.MovieRepository
+import io.mockk.coEvery
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -18,8 +16,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import org.mockito.Mockito
-import org.mockito.stubbing.OngoingStubbing
 import retrofit2.Response
 
 class MovieRepositoryTest {
@@ -28,25 +24,25 @@ class MovieRepositoryTest {
     val instantTaskExecutorRule =  InstantTaskExecutorRule()
 
     private val movieService: MovieService = mockk(relaxed = true)
-    private val movieObserver: Movie = mockk(relaxed = true)
     private lateinit var repository: MovieRepository
-
+    val myMarvelMovie = Movie("TestMovie",18,
+        FollowingProduction(34,"next production","","21/08/2023","NextProduction","Movie")
+        ,"my test movie","","","")
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
     fun setUp(){
         repository = MovieRepository(movieService)
         Dispatchers.setMain(UnconfinedTestDispatcher())
-
-
     }
 
     @Test
     fun `get next movie should return movie items`() = runBlocking{
 
-        val expectedMovie = repository.getAllMovies() // api data changes daily string literal wont work
+       coEvery { movieService.getNextMovie() } returns Response.success(myMarvelMovie)
 
-      //  assert(expectedMovie == movieService.getNextMovie())
-        assertEquals(expectedMovie, movieService.getNextMovie())
+       val expectedMovie = repository.getAllMovies() // api data changes daily string literal wont work
+
+        assertEquals(myMarvelMovie, expectedMovie.body())
     }
 
 }
